@@ -4,6 +4,7 @@ import { Uploader } from "@/components/dashboard/uploader"
 import { SettingsPanel } from "@/components/dashboard/settings-panel"
 import { Explorer } from "@/components/dashboard/explorer"
 import { Repositories } from "@/components/dashboard/repositories"
+import { UploadHistoryChart } from "@/components/dashboard/upload-history-chart"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Github, FolderGit2, Settings, UploadCloud, BookMarked, BookOpen } from "lucide-react"
 import { motion } from "framer-motion"
@@ -93,6 +94,7 @@ export default function Home() {
             
             <TabsContent value="upload" forceMount className="data-[state=inactive]:hidden fade-in-50 animate-in slide-in-from-bottom-2 duration-300">
               <Uploader />
+              <UploadHistoryChart />
             </TabsContent>
             
             <TabsContent value="explorer" forceMount className="data-[state=inactive]:hidden fade-in-50 animate-in slide-in-from-bottom-2 duration-300">

@@ -11,7 +11,7 @@ import { Progress } from "@/components/ui/progress"
 import JSZip from "jszip"
 
 export function Uploader() {
-  const { config, isConfigured } = useGithub()
+  const { config, isConfigured, recordUploads } = useGithub()
   const [queue, setQueue] = useState<File[]>([])
   const [isUploading, setIsUploading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -152,6 +152,7 @@ export function Uploader() {
 
     if (uploadedCount > 0) {
       toast.success(`Berhasil mengunggah ${uploadedCount} file`)
+      recordUploads(uploadedCount)
       setQueue([])
     }
     setIsUploading(false)

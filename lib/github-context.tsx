@@ -11,6 +11,10 @@ export interface GitHubConfig {
   commitMessageTemplate: string
 }
 
+export interface UploadHistory {
+  [date: string]: number
+}
+
 export interface GithubContextType {
   config: GitHubConfig
   setConfig: (config: GitHubConfig) => void
@@ -19,6 +23,8 @@ export interface GithubContextType {
   branches: string[]
   isConfigured: boolean
   fetchRepositories: () => void
+  uploadHistory: UploadHistory
+  recordUploads: (count: number) => void
 }
 
 const defaultConfig: GitHubConfig = {
@@ -37,19 +43,25 @@ export function GithubProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any>(null)
   const [repositories, setRepositories] = useState<any[]>([])
   const [branches, setBranches] = useState<string[]>([])
+  const [uploadHistory, setUploadHistory] = useState<UploadHistory>({})
 
   useEffect(() => {
-    const loadConfig = async () => {
+    const loadData = async () => {
       try {
-        const saved = await get('github-uploader-config')
-        if (saved) {
-          setConfigState(saved)
+        const savedConfig = await get('github-uploader-config')
+        if (savedConfig) {
+          setConfigState(savedConfig)
+        }
+        
+        const savedHistory = await get('github-upload-history')
+        if (savedHistory) {
+          setUploadHistory(savedHistory)
         }
       } catch (e) {
-        console.error("Failed to load config from IndexedDB", e)
+        console.error("Failed to load data from IndexedDB", e)
       }
     }
-    loadConfig()
+    loadData()
   }, [])
 
   const setConfig = async (newConfig: GitHubConfig) => {
@@ -59,6 +71,16 @@ export function GithubProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       console.error("Failed to save config to IndexedDB", e)
     }
+  }
+
+  const recordUploads = async (count: number) => {
+    if (count <= 0) return
+    const date = new Date().toISOString().split('T')[0]
+    setUploadHistory(prev => {
+      const newHistory = { ...prev, [date]: (prev[date] || 0) + count }
+      set('github-upload-history', newHistory).catch(e => console.error("Failed to save history", e))
+      return newHistory
+    })
   }
 
   useEffect(() => {
@@ -117,7 +139,7 @@ export function GithubProvider({ children }: { children: React.ReactNode }) {
   const isConfigured = Boolean(config.token && config.repo && config.branch)
 
   return (
-    <GithubContext.Provider value={{ config, setConfig, user, repositories, branches, isConfigured, fetchRepositories }}>
+    <GithubContext.Provider value={{ config, setConfig, user, repositories, branches, isConfigured, fetchRepositories, uploadHistory, recordUploads }}>
       {children}
     </GithubContext.Provider>
   )
