@@ -27,7 +27,7 @@ export function Explorer() {
       const res = await fetch(apiUrl, {
         headers: { Authorization: `Bearer ${config.token}` }
       })
-      if (!res.ok) throw new Error("Failed to fetch contents")
+      if (!res.ok) throw new Error("Gagal mengambil file")
       
       let data = await res.json()
       if (!Array.isArray(data)) data = [data]
@@ -63,7 +63,7 @@ export function Explorer() {
   }
 
   const handleDelete = async (file: any) => {
-    if (!confirm(`Are you sure you want to delete ${file.name}?`)) return
+    if (!confirm(`Apakah Anda yakin ingin menghapus ${file.name}?`)) return
     
     try {
       const owner = config.username
@@ -78,14 +78,14 @@ export function Explorer() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          message: `Delete ${file.name}`,
+          message: `Hapus ${file.name}`,
           sha: file.sha,
           branch
         })
       })
       
-      if (!res.ok) throw new Error("Failed to delete")
-      toast.success("Deleted successfully")
+      if (!res.ok) throw new Error("Gagal menghapus")
+      toast.success("Berhasil dihapus")
       fetchFiles(currentPath)
     } catch (err: any) {
       toast.error(err.message)
@@ -98,7 +98,7 @@ export function Explorer() {
     return (
       <Card className="bg-destructive/10 border-destructive mt-6 max-w-5xl mx-auto">
         <CardContent className="p-4 text-center">
-          Please configure your GitHub settings to explore files.
+          Harap konfigurasikan pengaturan GitHub Anda untuk menjelajahi file.
         </CardContent>
       </Card>
     )
@@ -120,7 +120,7 @@ export function Explorer() {
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <Input 
-            placeholder="Search files..." 
+            placeholder="Cari file..." 
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full sm:w-48 lg:w-64"
@@ -132,17 +132,17 @@ export function Explorer() {
           <table className="w-full text-sm text-left min-w-[500px]">
             <thead className="bg-muted/50 text-muted-foreground">
               <tr>
-                <th className="px-6 py-3 font-medium">Name</th>
-                <th className="px-6 py-3 font-medium">Type</th>
-                <th className="px-6 py-3 font-medium">Size</th>
-                <th className="px-6 py-3 font-medium text-right">Actions</th>
+                <th className="px-6 py-3 font-medium">Nama</th>
+                <th className="px-6 py-3 font-medium">Tipe</th>
+                <th className="px-6 py-3 font-medium">Ukuran</th>
+                <th className="px-6 py-3 font-medium text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {loading ? (
-                <tr><td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">Loading...</td></tr>
+                <tr><td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">Memuat...</td></tr>
               ) : filteredFiles.length === 0 ? (
-                <tr><td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">No files found</td></tr>
+                <tr><td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">Tidak ada file ditemukan</td></tr>
               ) : (
                 filteredFiles.map((file, i) => (
                   <tr key={i} className="hover:bg-muted/50 transition-colors">

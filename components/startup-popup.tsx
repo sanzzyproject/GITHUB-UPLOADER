@@ -31,7 +31,7 @@ export function StartupPopup() {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-center text-xl font-bold">Join Developer Channel!</DialogTitle>
+          <DialogTitle className="text-center text-xl font-bold">Gabung Saluran Pengembang!</DialogTitle>
           <DialogDescription className="text-center">
             Dapatkan update terbaru dan bergabung dengan komunitas kami.
           </DialogDescription>
@@ -55,7 +55,7 @@ export function StartupPopup() {
               setIsOpen(false)
             }}
           >
-            Join WhatsApp Channel
+            Gabung Saluran WhatsApp
           </Button>
           <Button 
             variant="outline" 

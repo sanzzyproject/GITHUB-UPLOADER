@@ -7,22 +7,24 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { toast } from "sonner"
-import { Lock, Globe, Star, GitFork, BookMarked } from "lucide-react"
+import { Lock, Globe, Star, GitFork, BookMarked, Trash2 } from "lucide-react"
 
 export function Repositories() {
   const { config, user, repositories, fetchRepositories } = useGithub()
   const [search, setSearch] = useState("")
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [repoToDelete, setRepoToDelete] = useState<string | null>(null)
   
   const [newRepoName, setNewRepoName] = useState("")
   const [newRepoDesc, setNewRepoDesc] = useState("")
   const [isPrivate, setIsPrivate] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const handleCreate = async () => {
-    if (!newRepoName) return toast.error("Repository name is required")
+    if (!newRepoName) return toast.error("Nama repositori diperlukan")
     setIsCreating(true)
     try {
       const res = await fetch("https://api.github.com/user/repos", {
@@ -38,8 +40,8 @@ export function Repositories() {
           auto_init: true
         })
       })
-      if (!res.ok) throw new Error("Failed to create repository")
-      toast.success("Repository created successfully.")
+      if (!res.ok) throw new Error("Gagal membuat repositori")
+      toast.success("Repositori berhasil dibuat.")
       setIsCreateOpen(false)
       setNewRepoName("")
       setNewRepoDesc("")
@@ -51,13 +53,40 @@ export function Repositories() {
     }
   }
 
+  const handleDelete = async () => {
+    if (!repoToDelete) return
+    setIsDeleting(true)
+    try {
+      const res = await fetch(`https://api.github.com/repos/${config.username}/${repoToDelete}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${config.token}`,
+          Accept: "application/vnd.github.v3+json"
+        }
+      })
+      if (!res.ok) {
+        if (res.status === 403 || res.status === 404) {
+          throw new Error("Gagal menghapus. Pastikan token Anda memiliki scope 'delete_repo'.")
+        }
+        throw new Error("Gagal menghapus repositori")
+      }
+      toast.success(`Repositori ${repoToDelete} berhasil dihapus.`)
+      setRepoToDelete(null)
+      fetchRepositories()
+    } catch (err: any) {
+      toast.error(err.message)
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
   const filteredRepos = repositories.filter(r => r.name.toLowerCase().includes(search.toLowerCase()))
 
   if (!config.token) {
     return (
       <Card className="bg-destructive/10 border-destructive mt-6 max-w-5xl mx-auto">
         <CardContent className="p-4 text-center">
-          Please configure your GitHub settings to manage repositories.
+          Harap konfigurasikan pengaturan GitHub Anda untuk mengelola repositori.
         </CardContent>
       </Card>
     )
@@ -67,47 +96,47 @@ export function Repositories() {
     <div className="space-y-6 mt-6 max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Repositories</h2>
-          <p className="text-muted-foreground text-sm">Manage your GitHub repositories.</p>
+          <h2 className="text-2xl font-bold tracking-tight">Repositori</h2>
+          <p className="text-muted-foreground text-sm">Kelola repositori GitHub Anda.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Input 
-            placeholder="Search repositories..." 
+            placeholder="Cari repositori..." 
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full sm:w-64"
           />
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>
-              <Button className="w-full sm:w-auto">Create Repository</Button>
+              <Button className="w-full sm:w-auto">Buat Repositori</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Create a new repository</DialogTitle>
+                <DialogTitle>Buat repositori baru</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label>Repository name *</Label>
+                  <Label>Nama repositori *</Label>
                   <Input value={newRepoName} onChange={e => setNewRepoName(e.target.value)} placeholder="my-awesome-project" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Description</Label>
-                  <Input value={newRepoDesc} onChange={e => setNewRepoDesc(e.target.value)} placeholder="Short description" />
+                  <Label>Deskripsi</Label>
+                  <Input value={newRepoDesc} onChange={e => setNewRepoDesc(e.target.value)} placeholder="Deskripsi singkat" />
                 </div>
                 <div className="flex items-center justify-between border p-4 rounded-lg">
                   <div className="space-y-0.5">
                     <Label className="text-base flex items-center gap-2">
                       {isPrivate ? <Lock className="h-4 w-4" /> : <Globe className="h-4 w-4" />}
-                      Private Repository
+                      Repositori Privat
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      {isPrivate ? "You choose who can see and commit to this repository." : "Anyone on the internet can see this repository."}
+                      {isPrivate ? "Anda memilih siapa yang dapat melihat dan berkontribusi ke repositori ini." : "Siapapun di internet dapat melihat repositori ini."}
                     </p>
                   </div>
                   <Switch checked={isPrivate} onCheckedChange={setIsPrivate} />
                 </div>
                 <Button className="w-full" onClick={handleCreate} disabled={isCreating}>
-                  {isCreating ? "Creating..." : "Create Repository"}
+                  {isCreating ? "Membuat..." : "Buat Repositori"}
                 </Button>
               </div>
             </DialogContent>
@@ -120,16 +149,21 @@ export function Repositories() {
           <Card key={repo.id} className="flex flex-col">
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-lg font-bold flex items-center gap-2 truncate">
+                <CardTitle className="text-lg font-bold flex items-center gap-2 truncate flex-1">
                   <BookMarked className="h-4 w-4 text-muted-foreground shrink-0" />
                   <a href={repo.html_url} target="_blank" rel="noreferrer" className="hover:underline truncate">{repo.name}</a>
                 </CardTitle>
-                <span className="text-xs border px-2 py-1 rounded-full text-muted-foreground capitalize shrink-0 ml-2">
-                  {repo.private ? 'Private' : 'Public'}
-                </span>
+                <div className="flex items-center shrink-0 ml-2">
+                  <span className="text-xs border px-2 py-1 rounded-full text-muted-foreground capitalize mr-2">
+                    {repo.private ? 'Privat' : 'Publik'}
+                  </span>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => setRepoToDelete(repo.name)} title="Hapus Repositori">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               <CardDescription className="line-clamp-2 h-10 mt-2">
-                {repo.description || "No description provided."}
+                {repo.description || "Tidak ada deskripsi."}
               </CardDescription>
             </CardHeader>
             <CardContent className="mt-auto pt-0 flex gap-4 text-sm text-muted-foreground">
@@ -151,9 +185,28 @@ export function Repositories() {
       
       {filteredRepos.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
-          No repositories found matching your search.
+          Tidak ada repositori yang cocok dengan pencarian Anda.
         </div>
       )}
+
+      <Dialog open={!!repoToDelete} onOpenChange={(open) => !open && setRepoToDelete(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hapus Repositori</DialogTitle>
+            <DialogDescription>
+              Apakah Anda yakin ingin menghapus <span className="font-bold text-foreground">{repoToDelete}</span>? Tindakan ini tidak dapat dibatalkan.
+              <br/><br/>
+              <span className="text-destructive font-semibold">Catatan:</span> Personal Access Token Anda harus memiliki scope <code>delete_repo</code>.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setRepoToDelete(null)} disabled={isDeleting}>Batal</Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+              {isDeleting ? "Menghapus..." : "Hapus"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

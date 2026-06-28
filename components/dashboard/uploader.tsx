@@ -32,7 +32,7 @@ export function Uploader() {
   const handleZipExtract = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    toast.info("Extracting ZIP file...")
+    toast.info("Mengekstrak file ZIP...")
     try {
       const zip = new JSZip()
       const contents = await zip.loadAsync(file)
@@ -77,9 +77,9 @@ export function Uploader() {
         }
       }
       setQueue(prev => [...prev, ...extractedFiles])
-      toast.success(`Extracted ${extractedFiles.length} files`)
+      toast.success(`Berhasil mengekstrak ${extractedFiles.length} file`)
     } catch (err) {
-      toast.error("Failed to extract ZIP")
+      toast.error("Gagal mengekstrak ZIP")
     }
   }
 
@@ -90,8 +90,8 @@ export function Uploader() {
   const clearQueue = () => setQueue([])
 
   const startUpload = async () => {
-    if (!isConfigured) return toast.error("Please configure GitHub settings first")
-    if (queue.length === 0) return toast.error("No files in queue")
+    if (!isConfigured) return toast.error("Harap konfigurasikan pengaturan GitHub terlebih dahulu")
+    if (queue.length === 0) return toast.error("Tidak ada file dalam antrean")
     
     setIsUploading(true)
     setProgress(0)
@@ -141,7 +141,7 @@ export function Uploader() {
           })
         })
 
-        if (!res.ok) throw new Error(`Failed to upload ${file.name}`)
+        if (!res.ok) throw new Error(`Gagal mengunggah ${file.name}`)
         
         uploadedCount++
         setProgress((uploadedCount / queue.length) * 100)
@@ -151,7 +151,7 @@ export function Uploader() {
     }
 
     if (uploadedCount > 0) {
-      toast.success(`Successfully uploaded ${uploadedCount} files`)
+      toast.success(`Berhasil mengunggah ${uploadedCount} file`)
       setQueue([])
     }
     setIsUploading(false)
@@ -163,7 +163,7 @@ export function Uploader() {
       {!isConfigured && (
         <Card className="bg-destructive/10 border-destructive">
           <CardContent className="p-4 text-center">
-            Please configure your GitHub settings in the Settings tab before uploading.
+            Harap konfigurasikan pengaturan GitHub Anda di tab Pengaturan sebelum mengunggah.
           </CardContent>
         </Card>
       )}
@@ -171,7 +171,7 @@ export function Uploader() {
       {isConfigured && (
         <Card className="bg-muted/30 border-dashed">
           <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-            <div className="text-sm font-medium whitespace-nowrap text-muted-foreground">Upload to:</div>
+            <div className="text-sm font-medium whitespace-nowrap text-muted-foreground">Unggah ke:</div>
             <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-background px-3 py-2 border rounded-md text-sm">{config.repo}</div>
               <div className="bg-background px-3 py-2 border rounded-md text-sm">{config.branch}</div>
@@ -187,7 +187,7 @@ export function Uploader() {
         >
           <input {...getInputProps()} />
           <UploadCloud className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-lg font-medium">Drag & drop files here, or click to select</p>
+          <p className="text-lg font-medium">Seret & lepas file ke sini, atau klik untuk memilih</p>
         </div>
       </div>
 
@@ -202,7 +202,7 @@ export function Uploader() {
             onChange={handleFolderSelect} 
           />
           <Button variant="outline" className="w-full" onClick={() => folderInputRef.current?.click()}>
-            <FolderUp className="mr-2 h-4 w-4" /> Select Folder
+            <FolderUp className="mr-2 h-4 w-4" /> Pilih Folder
           </Button>
         </div>
         <div className="w-full sm:w-auto">
@@ -214,7 +214,7 @@ export function Uploader() {
             onChange={handleZipExtract} 
           />
           <Button variant="outline" className="w-full" onClick={() => document.getElementById("zipExtract")?.click()}>
-            <FileArchive className="mr-2 h-4 w-4" /> Extract & Upload ZIP
+            <FileArchive className="mr-2 h-4 w-4" /> Ekstrak & Unggah ZIP
           </Button>
         </div>
       </div>
@@ -223,13 +223,13 @@ export function Uploader() {
         <Card>
           <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <CardTitle>Upload Queue</CardTitle>
-              <CardDescription>{queue.length} files in queue</CardDescription>
+              <CardTitle>Antrean Unggahan</CardTitle>
+              <CardDescription>{queue.length} file dalam antrean</CardDescription>
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
-              <Button variant="outline" className="flex-1 sm:flex-none" onClick={clearQueue} disabled={isUploading}>Clear</Button>
+              <Button variant="outline" className="flex-1 sm:flex-none" onClick={clearQueue} disabled={isUploading}>Bersihkan</Button>
               <Button onClick={startUpload} className="flex-1 sm:flex-none" disabled={isUploading}>
-                {isUploading ? "Uploading..." : "Start Upload"}
+                {isUploading ? "Mengunggah..." : "Mulai Unggah"}
               </Button>
             </div>
           </CardHeader>

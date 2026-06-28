@@ -39,6 +39,9 @@ export default function Home() {
                   <div className="space-y-2">
                     <h3 className="font-bold text-foreground">1. Konfigurasi Awal (Settings)</h3>
                     <p>Buka tab <strong>Settings</strong>. Masukkan <strong>Personal Access Token</strong> (PAT) dari GitHub Anda. Pastikan token memiliki izin untuk membaca dan menulis repository (scope `repo`).</p>
+                    <div className="bg-muted/50 p-3 rounded-md text-xs mt-2 border-l-4 border-blue-500 text-foreground">
+                      <strong>🛡️ Keamanan API Key Terjamin:</strong> Personal Access Token (API Key) Anda 100% aman. Token hanya disimpan secara lokal di dalam memori browser Anda (IndexedDB) dan tidak akan pernah dikirim ke server kami atau pihak ketiga. Seluruh proses request ke GitHub dilakukan langsung dari browser Anda menuju <code>api.github.com</code>.
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <h3 className="font-bold text-foreground">2. Pilih Repository</h3>
@@ -74,16 +77,16 @@ export default function Home() {
             <div className="flex justify-center mb-8 overflow-x-auto pb-2">
               <TabsList className="flex w-max min-w-full sm:min-w-0 sm:grid sm:grid-cols-4 h-auto p-1">
                 <TabsTrigger value="upload" className="flex gap-2 py-2 px-4">
-                  <UploadCloud className="h-4 w-4" /> <span className="hidden sm:inline">Upload</span>
+                  <UploadCloud className="h-4 w-4" /> <span className="hidden sm:inline">Unggah</span>
                 </TabsTrigger>
                 <TabsTrigger value="explorer" className="flex gap-2 py-2 px-4">
-                  <FolderGit2 className="h-4 w-4" /> <span className="hidden sm:inline">Explorer</span>
+                  <FolderGit2 className="h-4 w-4" /> <span className="hidden sm:inline">Penjelajah</span>
                 </TabsTrigger>
                 <TabsTrigger value="repositories" className="flex gap-2 py-2 px-4">
-                  <BookMarked className="h-4 w-4" /> <span className="hidden sm:inline">Repositories</span>
+                  <BookMarked className="h-4 w-4" /> <span className="hidden sm:inline">Repositori</span>
                 </TabsTrigger>
                 <TabsTrigger value="settings" className="flex gap-2 py-2 px-4">
-                  <Settings className="h-4 w-4" /> <span className="hidden sm:inline">Settings</span>
+                  <Settings className="h-4 w-4" /> <span className="hidden sm:inline">Pengaturan</span>
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -108,7 +111,7 @@ export default function Home() {
       </main>
       <Toaster />
       <footer className="border-t py-6 text-center text-sm text-muted-foreground bg-muted/20">
-        Created by <span className="font-bold text-foreground">SANN404 FORUM GROUP</span>
+        Dibuat oleh <span className="font-bold text-foreground">SANN404 FORUM GROUP</span>
       </footer>
     </div>
   )
