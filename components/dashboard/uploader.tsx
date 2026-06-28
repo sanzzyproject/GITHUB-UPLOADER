@@ -108,17 +108,16 @@ export function Uploader() {
           path = `${config.targetFolder}/${path}`
         }
 
-        const owner = config.username.trim()
-        const repo = config.repo.trim()
-        const branch = config.branch.trim()
-        const apiUrl = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${path}`
+        const owner = config.username
+        const repo = config.repo
+        const branch = config.branch
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`
 
         // Check if file exists first to get sha for update
         let sha
         try {
           const checkRes = await fetch(apiUrl, {
-            headers: { Authorization: `Bearer ${config.token}` },
-            cache: 'no-store'
+            headers: { Authorization: `Bearer ${config.token}` }
           })
           if (checkRes.ok) {
             const data = await checkRes.json()
