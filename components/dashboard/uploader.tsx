@@ -108,9 +108,9 @@ export function Uploader() {
           path = `${config.targetFolder}/${path}`
         }
 
-        const owner = config.username
-        const repo = config.repo
-        const branch = config.branch
+        const owner = config.username.trim()
+        const repo = config.repo.trim()
+        const branch = config.branch.trim()
         const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`
 
         // Check if file exists first to get sha for update

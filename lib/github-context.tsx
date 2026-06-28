@@ -98,7 +98,7 @@ export function GithubProvider({ children }: { children: React.ReactNode }) {
 
   const fetchRepositories = () => {
     if (config.token && (config.username || user?.login)) {
-      const targetUser = config.username || user?.login
+      const targetUser = (config.username || user?.login || '').trim()
       if (targetUser) {
         fetch(`https://api.github.com/users/${targetUser}/repos?per_page=100&sort=updated`, {
           headers: { Authorization: `Bearer ${config.token}` }
@@ -120,9 +120,10 @@ export function GithubProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (config.token && config.repo) {
-      const owner = config.username || user?.login
-      if (owner) {
-        fetch(`https://api.github.com/repos/${owner}/${config.repo}/branches`, {
+      const owner = (config.username || user?.login || '').trim()
+      const repo = config.repo.trim()
+      if (owner && repo) {
+        fetch(`https://api.github.com/repos/${owner}/${repo}/branches`, {
           headers: { Authorization: `Bearer ${config.token}` }
         })
         .then(res => res.json())
