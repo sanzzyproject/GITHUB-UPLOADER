@@ -7,8 +7,17 @@ import { GithubProvider } from "@/lib/github-context"
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "GitHub File Manager",
-  description: "Manage your GitHub repositories",
+  title: "githubupps",
+  description: "Upload files to GitHub easily",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "githubupps",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export default function RootLayout({
