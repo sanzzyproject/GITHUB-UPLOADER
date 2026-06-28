@@ -18,6 +18,7 @@ export interface GithubContextType {
   repositories: any[]
   branches: string[]
   isConfigured: boolean
+  fetchRepositories: () => void
 }
 
 const defaultConfig: GitHubConfig = {
@@ -73,7 +74,7 @@ export function GithubProvider({ children }: { children: React.ReactNode }) {
     }
   }, [config.token])
 
-  useEffect(() => {
+  const fetchRepositories = () => {
     if (config.token && (config.username || user?.login)) {
       const targetUser = config.username || user?.login
       if (targetUser) {
@@ -89,6 +90,10 @@ export function GithubProvider({ children }: { children: React.ReactNode }) {
     } else {
       setRepositories([])
     }
+  }
+
+  useEffect(() => {
+    fetchRepositories()
   }, [config.token, config.username, user?.login])
 
   useEffect(() => {
@@ -112,7 +117,7 @@ export function GithubProvider({ children }: { children: React.ReactNode }) {
   const isConfigured = Boolean(config.token && config.repo && config.branch)
 
   return (
-    <GithubContext.Provider value={{ config, setConfig, user, repositories, branches, isConfigured }}>
+    <GithubContext.Provider value={{ config, setConfig, user, repositories, branches, isConfigured, fetchRepositories }}>
       {children}
     </GithubContext.Provider>
   )

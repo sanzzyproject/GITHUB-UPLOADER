@@ -47,19 +47,19 @@ export default function Home() {
               </TabsList>
             </div>
             
-            <TabsContent value="upload" className="fade-in-50 animate-in slide-in-from-bottom-2 duration-300">
+            <TabsContent value="upload" forceMount className="data-[state=inactive]:hidden fade-in-50 animate-in slide-in-from-bottom-2 duration-300">
               <Uploader />
             </TabsContent>
             
-            <TabsContent value="explorer" className="fade-in-50 animate-in slide-in-from-bottom-2 duration-300">
+            <TabsContent value="explorer" forceMount className="data-[state=inactive]:hidden fade-in-50 animate-in slide-in-from-bottom-2 duration-300">
               <Explorer />
             </TabsContent>
 
-            <TabsContent value="repositories" className="fade-in-50 animate-in slide-in-from-bottom-2 duration-300">
+            <TabsContent value="repositories" forceMount className="data-[state=inactive]:hidden fade-in-50 animate-in slide-in-from-bottom-2 duration-300">
               <Repositories />
             </TabsContent>
             
-            <TabsContent value="settings" className="fade-in-50 animate-in slide-in-from-bottom-2 duration-300">
+            <TabsContent value="settings" forceMount className="data-[state=inactive]:hidden fade-in-50 animate-in slide-in-from-bottom-2 duration-300">
               <SettingsPanel />
             </TabsContent>
           </Tabs>

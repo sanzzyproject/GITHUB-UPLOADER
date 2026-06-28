@@ -38,10 +38,41 @@ export function Uploader() {
       const contents = await zip.loadAsync(file)
       const extractedFiles: File[] = []
       
-      for (const [filename, zipEntry] of Object.entries(contents.files)) {
+      const validEntries = Object.entries(contents.files).filter(
+        ([name]) => !name.startsWith('__MACOSX/') && !name.includes('/.DS_Store') && !name.endsWith('.DS_Store')
+      );
+
+      let rootFolder = null;
+      let isSingleRoot = true;
+      
+      for (const [filename, entry] of validEntries) {
+        if (entry.dir) continue;
+        const parts = filename.split('/');
+        if (parts.length === 1) {
+           isSingleRoot = false;
+           break;
+        }
+        if (parts.length > 1) {
+           if (rootFolder === null) {
+              rootFolder = parts[0];
+           } else if (rootFolder !== parts[0]) {
+              isSingleRoot = false;
+              break;
+           }
+        }
+      }
+
+      const prefixToRemove = isSingleRoot && rootFolder ? `${rootFolder}/` : "";
+
+      for (const [filename, zipEntry] of validEntries) {
         if (!zipEntry.dir) {
           const blob = await zipEntry.async("blob")
-          const extractedFile = new File([blob], filename)
+          let finalName = filename;
+          if (prefixToRemove && finalName.startsWith(prefixToRemove)) {
+             finalName = finalName.substring(prefixToRemove.length);
+          }
+          const extractedFile = new File([blob], finalName)
+          Object.defineProperty(extractedFile, 'webkitRelativePath', { value: finalName });
           extractedFiles.push(extractedFile)
         }
       }

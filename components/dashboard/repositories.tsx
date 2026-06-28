@@ -12,7 +12,7 @@ import { toast } from "sonner"
 import { Lock, Globe, Star, GitFork, BookMarked } from "lucide-react"
 
 export function Repositories() {
-  const { config, user, repositories } = useGithub()
+  const { config, user, repositories, fetchRepositories } = useGithub()
   const [search, setSearch] = useState("")
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   
@@ -39,10 +39,11 @@ export function Repositories() {
         })
       })
       if (!res.ok) throw new Error("Failed to create repository")
-      toast.success("Repository created successfully. Please refresh the page to see it.")
+      toast.success("Repository created successfully.")
       setIsCreateOpen(false)
       setNewRepoName("")
       setNewRepoDesc("")
+      fetchRepositories()
     } catch (err: any) {
       toast.error(err.message)
     } finally {
