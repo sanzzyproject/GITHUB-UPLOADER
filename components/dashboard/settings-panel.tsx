@@ -22,6 +22,9 @@ export function SettingsPanel() {
   const [testResult, setTestResult] = useState<boolean | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const [localRepos, setLocalRepos] = useState<any[]>([])
+  const [localBranches, setLocalBranches] = useState<string[]>([])
+
   useEffect(() => {
     setToken(config.token)
     setUsername(config.username)
@@ -30,6 +33,80 @@ export function SettingsPanel() {
     setTargetFolder(config.targetFolder)
     setCommitMessage(config.commitMessageTemplate)
   }, [config])
+
+  useEffect(() => {
+    const fetchLocalRepos = async () => {
+      if (token && token.length > 10) {
+        try {
+          let targetUser = username
+          if (!targetUser) {
+            const userRes = await fetch("https://api.github.com/user", { headers: { Authorization: `Bearer ${token}` } })
+            if (userRes.ok) {
+              const userData = await userRes.json()
+              targetUser = userData.login
+            }
+          }
+          
+          if (targetUser) {
+            const repoRes = await fetch(`https://api.github.com/users/${targetUser}/repos?per_page=100&sort=updated`, {
+              headers: { Authorization: `Bearer ${token}` }
+            })
+            if (repoRes.ok) {
+              const repoData = await repoRes.json()
+              if (Array.isArray(repoData)) {
+                setLocalRepos(repoData)
+              }
+            }
+          }
+        } catch (e) {
+          console.error(e)
+        }
+      } else {
+        setLocalRepos([])
+      }
+    }
+    
+    const timeout = setTimeout(fetchLocalRepos, 500)
+    return () => clearTimeout(timeout)
+  }, [token, username])
+
+  useEffect(() => {
+    const fetchLocalBranches = async () => {
+      if (token && repo) {
+        let targetUser = username
+        if (!targetUser) {
+          try {
+            const userRes = await fetch("https://api.github.com/user", { headers: { Authorization: `Bearer ${token}` } })
+            if (userRes.ok) {
+              const userData = await userRes.json()
+              targetUser = userData.login
+            }
+          } catch (e) {
+            console.error(e)
+          }
+        }
+        
+        if (targetUser) {
+          try {
+            const branchRes = await fetch(`https://api.github.com/repos/${targetUser}/${repo}/branches`, {
+              headers: { Authorization: `Bearer ${token}` }
+            })
+            if (branchRes.ok) {
+              const branchData = await branchRes.json()
+              if (Array.isArray(branchData)) {
+                setLocalBranches(branchData.map((b: any) => b.name))
+              }
+            }
+          } catch (e) {
+            console.error(e)
+          }
+        }
+      } else {
+        setLocalBranches([])
+      }
+    }
+    fetchLocalBranches()
+  }, [token, repo, username])
 
   const handleSave = () => {
     setConfig({ token, username, repo, branch, targetFolder, commitMessageTemplate: commitMessage })
@@ -117,11 +194,11 @@ export function SettingsPanel() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="repo">Repositori</Label>
-              {repositories.length > 0 ? (
+              {localRepos.length > 0 ? (
                 <Select value={repo} onValueChange={setRepo}>
                   <SelectTrigger><SelectValue placeholder="Pilih repositori" /></SelectTrigger>
                   <SelectContent>
-                    {repositories.map(r => <SelectItem key={r.name} value={r.name}>{r.name}</SelectItem>)}
+                    {localRepos.map(r => <SelectItem key={r.name} value={r.name}>{r.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               ) : (
@@ -132,11 +209,11 @@ export function SettingsPanel() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="branch">Cabang (Branch)</Label>
-              {branches.length > 0 ? (
+              {localBranches.length > 0 ? (
                 <Select value={branch} onValueChange={setBranch}>
                   <SelectTrigger><SelectValue placeholder="Pilih cabang" /></SelectTrigger>
                   <SelectContent>
-                    {branches.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                    {localBranches.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
                   </SelectContent>
                 </Select>
               ) : (
