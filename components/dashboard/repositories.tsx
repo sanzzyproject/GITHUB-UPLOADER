@@ -57,7 +57,8 @@ export function Repositories() {
     if (!repoToDelete) return
     setIsDeleting(true)
     try {
-      const res = await fetch(`https://api.github.com/repos/${config.username}/${repoToDelete}`, {
+      const owner = config.username.trim()
+      const res = await fetch(`https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoToDelete)}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${config.token}`,

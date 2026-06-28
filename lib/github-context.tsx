@@ -65,9 +65,15 @@ export function GithubProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const setConfig = async (newConfig: GitHubConfig) => {
-    setConfigState(newConfig)
+    const cleanedConfig = {
+      ...newConfig,
+      username: newConfig.username?.trim() || '',
+      repo: newConfig.repo?.trim() || '',
+      token: newConfig.token?.trim() || '',
+    }
+    setConfigState(cleanedConfig)
     try {
-      await set('github-uploader-config', newConfig)
+      await set('github-uploader-config', cleanedConfig)
     } catch (e) {
       console.error("Failed to save config to IndexedDB", e)
     }
@@ -86,7 +92,8 @@ export function GithubProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (config.token) {
       fetch('https://api.github.com/user', {
-        headers: { Authorization: `Bearer ${config.token}` }
+        headers: { Authorization: `Bearer ${config.token}` },
+        cache: 'no-store'
       })
       .then(res => res.json())
       .then(data => setUser(data))
@@ -98,10 +105,14 @@ export function GithubProvider({ children }: { children: React.ReactNode }) {
 
   const fetchRepositories = () => {
     if (config.token && (config.username || user?.login)) {
-      const targetUser = config.username || user?.login
+      const targetUser = (config.username || user?.login || '').trim()
       if (targetUser) {
-        fetch(`https://api.github.com/users/${targetUser}/repos?per_page=100&sort=updated`, {
-          headers: { Authorization: `Bearer ${config.token}` }
+        fetch(`https://api.github.com/users/${encodeURIComponent(targetUser)}/repos?per_page=100&sort=updated`, {
+          headers: { 
+            Authorization: `Bearer ${config.token}`,
+            Accept: 'application/vnd.github.v3+json'
+          },
+          cache: 'no-store'
         })
         .then(res => res.json())
         .then(data => {
@@ -120,10 +131,15 @@ export function GithubProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (config.token && config.repo) {
-      const owner = config.username || user?.login
-      if (owner) {
-        fetch(`https://api.github.com/repos/${owner}/${config.repo}/branches`, {
-          headers: { Authorization: `Bearer ${config.token}` }
+      const owner = (config.username || user?.login || '').trim()
+      const repo = config.repo.trim()
+      if (owner && repo) {
+        fetch(`https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/branches`, {
+          headers: { 
+            Authorization: `Bearer ${config.token}`,
+            Accept: 'application/vnd.github.v3+json'
+          },
+          cache: 'no-store'
         })
         .then(res => res.json())
         .then(data => {

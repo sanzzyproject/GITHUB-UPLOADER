@@ -19,13 +19,14 @@ export function Explorer() {
     if (!isConfigured) return
     setLoading(true)
     try {
-      const owner = config.username
-      const repo = config.repo
-      const branch = config.branch
-      const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`
+      const owner = config.username.trim()
+      const repo = config.repo.trim()
+      const branch = config.branch.trim()
+      const apiUrl = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${path}?ref=${branch}`
       
       const res = await fetch(apiUrl, {
-        headers: { Authorization: `Bearer ${config.token}` }
+        headers: { Authorization: `Bearer ${config.token}` },
+        cache: 'no-store'
       })
       if (!res.ok) throw new Error("Gagal mengambil file")
       
@@ -66,10 +67,10 @@ export function Explorer() {
     if (!confirm(`Apakah Anda yakin ingin menghapus ${file.name}?`)) return
     
     try {
-      const owner = config.username
-      const repo = config.repo
-      const branch = config.branch
-      const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${file.path}`
+      const owner = config.username.trim()
+      const repo = config.repo.trim()
+      const branch = config.branch.trim()
+      const apiUrl = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${file.path}`
       
       const res = await fetch(apiUrl, {
         method: "DELETE",
