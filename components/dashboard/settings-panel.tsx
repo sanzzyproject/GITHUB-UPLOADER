@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useGithub } from "@/lib/github-context"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -21,6 +21,15 @@ export function SettingsPanel() {
   const [commitMessage, setCommitMessage] = useState(config.commitMessageTemplate)
   const [testResult, setTestResult] = useState<boolean | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    setToken(config.token)
+    setUsername(config.username)
+    setRepo(config.repo)
+    setBranch(config.branch)
+    setTargetFolder(config.targetFolder)
+    setCommitMessage(config.commitMessageTemplate)
+  }, [config])
 
   const handleSave = () => {
     setConfig({ token, username, repo, branch, targetFolder, commitMessageTemplate: commitMessage })
