@@ -51,7 +51,7 @@ export function StartupPopup() {
           <Button 
             className="w-full bg-green-600 hover:bg-green-700 text-white" 
             onClick={() => {
-              window.open("https://whatsapp.com/channel/0029Vb6ukqnHQbS4mKP0j80", "_blank")
+              window.open("https://whatsapp.com/channel/0029Vb6ukqnHQbS4mKP0j80L", "_blank")
               setIsOpen(false)
             }}
           >

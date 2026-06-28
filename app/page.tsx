@@ -21,7 +21,7 @@ export default function Home() {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Github className="h-6 w-6" />
-            <span className="font-bold text-lg hidden sm:inline">githubupps</span>
+            <span className="font-bold text-lg">githubupps</span>
           </div>
           <div className="flex items-center gap-2">
             <Dialog>
