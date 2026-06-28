@@ -100,11 +100,8 @@ export function GithubProvider({ children }: { children: React.ReactNode }) {
     if (config.token && (config.username || user?.login)) {
       const targetUser = config.username || user?.login
       if (targetUser) {
-        fetch(`https://api.github.com/users/${targetUser}/repos?per_page=100&sort=updated&t=${Date.now()}`, {
-          headers: { 
-            Authorization: `Bearer ${config.token}`,
-            'Cache-Control': 'no-cache'
-          }
+        fetch(`https://api.github.com/users/${targetUser}/repos?per_page=100&sort=updated`, {
+          headers: { Authorization: `Bearer ${config.token}` }
         })
         .then(res => res.json())
         .then(data => {

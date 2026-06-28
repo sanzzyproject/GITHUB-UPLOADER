@@ -5,11 +5,8 @@ import { useGithub } from "@/lib/github-context"
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-import { Folder, File, ArrowUpLeft, RefreshCw, Trash2, Edit2, Code2 } from "lucide-react"
+import { Folder, File, ArrowUpLeft, RefreshCw, Trash2 } from "lucide-react"
 
 export function Explorer() {
   const { config, isConfigured } = useGithub()
@@ -17,11 +14,6 @@ export function Explorer() {
   const [currentPath, setCurrentPath] = useState("")
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState("")
-
-  const [editingFile, setEditingFile] = useState<any>(null)
-  const [fileContent, setFileContent] = useState("")
-  const [isSaving, setIsSaving] = useState(false)
-  const [editCommitMsg, setEditCommitMsg] = useState("")
 
   const fetchFiles = async (path: string = "") => {
     if (!isConfigured) return
@@ -68,70 +60,6 @@ export function Explorer() {
     const parts = currentPath.split("/").filter(Boolean)
     parts.pop()
     fetchFiles(parts.join("/"))
-  }
-
-  const handleEdit = async (file: any) => {
-    setLoading(true)
-    try {
-      const apiUrl = `https://api.github.com/repos/${config.username}/${config.repo}/contents/${file.path}?ref=${config.branch}`
-      const res = await fetch(apiUrl, {
-        headers: { Authorization: `Bearer ${config.token}` }
-      })
-      if (!res.ok) throw new Error("Gagal mengambil isi file")
-      const data = await res.json()
-      
-      const cleanBase64 = (data.content || "").replace(/\s/g, '')
-      let content = ""
-      try {
-        content = decodeURIComponent(escape(atob(cleanBase64)))
-      } catch (e) {
-        toast.error("File ini sepertinya bukan teks biasa dan tidak dapat diedit.")
-        setLoading(false)
-        return
-      }
-      
-      setFileContent(content)
-      setEditingFile(data) // store the fetched data which has the latest sha
-      setEditCommitMsg(`Update ${file.name}`)
-    } catch (err: any) {
-      toast.error(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleSaveFile = async () => {
-    if (!editingFile) return
-    setIsSaving(true)
-    try {
-      const apiUrl = `https://api.github.com/repos/${config.username}/${config.repo}/contents/${editingFile.path}`
-      
-      // base64 encode supporting unicode
-      const encodedContent = btoa(unescape(encodeURIComponent(fileContent)))
-      
-      const res = await fetch(apiUrl, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${config.token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          message: editCommitMsg || `Update ${editingFile.name}`,
-          content: encodedContent,
-          sha: editingFile.sha,
-          branch: config.branch
-        })
-      })
-      
-      if (!res.ok) throw new Error("Gagal menyimpan file")
-      toast.success("File berhasil disimpan")
-      setEditingFile(null)
-      fetchFiles(currentPath)
-    } catch (err: any) {
-      toast.error(err.message)
-    } finally {
-      setIsSaving(false)
-    }
   }
 
   const handleDelete = async (file: any) => {
@@ -238,11 +166,8 @@ export function Explorer() {
                     </td>
                     <td className="px-6 py-3 text-right">
                       {file.type === "file" && (
-                        <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-500 hover:bg-blue-500/10 hover:text-blue-600" onClick={() => handleEdit(file)} title="Edit File">
-                            <Edit2 className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDelete(file)} title="Hapus File">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDelete(file)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -255,41 +180,6 @@ export function Explorer() {
           </table>
         </div>
       </CardContent>
-
-      <Dialog open={!!editingFile} onOpenChange={(open) => !open && setEditingFile(null)}>
-        <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Code2 className="h-5 w-5" /> Edit {editingFile?.name}
-            </DialogTitle>
-            <DialogDescription>
-              Edit kode secara langsung dan simpan ke repositori Anda.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex-1 flex flex-col gap-4 py-4 min-h-0">
-            <Textarea
-              value={fileContent}
-              onChange={(e) => setFileContent(e.target.value)}
-              className="flex-1 font-mono text-sm resize-none"
-              placeholder="Ketikkan kode Anda di sini..."
-            />
-            <div className="space-y-2">
-              <Label>Pesan Commit</Label>
-              <Input 
-                value={editCommitMsg} 
-                onChange={(e) => setEditCommitMsg(e.target.value)}
-                placeholder={`Update ${editingFile?.name}`}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingFile(null)} disabled={isSaving}>Batal</Button>
-            <Button onClick={handleSaveFile} disabled={isSaving}>
-              {isSaving ? "Menyimpan..." : "Simpan Perubahan"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </Card>
   )
 }
